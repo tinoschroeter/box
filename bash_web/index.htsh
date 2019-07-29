@@ -1,0 +1,5 @@
+<?bash
+echo $REQUEST_URI
+#echo $REQUEST_URI|sed 's/\///'|sqlite3 /var/www/html/chinook.db
+#echo $url
+?>

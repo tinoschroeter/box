@@ -1,0 +1,51 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+$script = <<SCRIPT
+apt-get update; apt-get install -y shellcheck curl apache2 sqlite 
+cd /var/www/html # your html folder
+#wget https://raw.githubusercontent.com/tinoschroeter/bash_on_steroids/master/build.sh
+chmod +x build.sh
+rm index.html
+
+tee /etc/apache2/sites-enabled/000-default.conf >/dev/null <<EOF
+<VirtualHost *:80>
+	ServerName example.org
+	ServerAdmin webmaster@example.org
+	DocumentRoot /var/www/html/
+ 
+        ScriptAlias "/index.html" "/usr/lib/cgi-bin/index.cgi"
+        ScriptAlias "/index" "/usr/lib/cgi-bin/index.cgi"
+        RedirectMatch 404 .*\.htsh
+        <Directory /var/www/html/>
+          AllowOverride none
+          Options -Indexes
+          Require all granted
+
+          RewriteEngine On
+          RewriteRule ^([a-zA-Z0-9.]+)$ index?url=$1 # 
+
+        </Directory>
+	ErrorLog /var/log/apache2/error.log
+	CustomLog /var/log/apache2/access.log combined
+	Include conf-available/serve-cgi-bin.conf
+</VirtualHost>
+EOF
+a2enmod cgid
+a2enmod rewrite
+service apache2 restart
+SCRIPT
+
+Vagrant.configure("2") do |config|
+config.vm.define "bash_web" do |bash_web|
+  bash_web.vm.hostname = "bash-web"
+  bash_web.vm.box = "ubuntu/bionic64"
+  bash_web.vm.provision "shell", inline: $script
+  bash_web.vm.network "forwarded_port", guest: 80, host: 8100
+  bash_web.vm.synced_folder ".", "/var/www/html"
+  end
+config.vm.provider "virtualbox" do |v|
+  v.memory = 1024
+  v.cpus = 2
+  end
+end
