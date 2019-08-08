@@ -1,0 +1,49 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+$script = <<SCRIPT
+apt-get update; apt-get install -y shellcheck curl apache2 zip
+cd /var/www/html # your html folder
+wget https://github.com/joewalnes/websocketd/releases/download/v0.3.0/websocketd-0.3.0-linux_amd64.zip
+test -f websocketd-0.3.0-linux_amd64.zip || unzip websocketd-0.3.0-linux_amd64.zip
+#test -f index.html && rm index.html
+test -f websocketd-0.3.0-linux_amd64.zip \
+&& rm CHANGES LICENSE README.md websocketd-0.3.0-linux_amd64.zip
+nohup /var/www/html/websocketd --devconsole --port=9091 /var/www/html/count.sh &
+tee /etc/apache2/sites-enabled/000-default.conf >/dev/null <<EOF
+<VirtualHost *:80>
+	ServerName example.org
+	ServerAdmin webmaster@example.org
+	DocumentRoot /var/www/html/
+ 
+        ProxyPass "/count"            "ws://localhost:9001/" 
+        <Directory /var/www/html/>
+          AllowOverride none
+          Options -Indexes
+          Require all granted
+
+        </Directory>
+	ErrorLog /var/log/apache2/error.log
+	CustomLog /var/log/apache2/access.log combined
+</VirtualHost>
+EOF
+a2enmod proxy_wstunnel
+service apache2 restart
+echo "########################"
+echo "# http://localhost:8101"
+SCRIPT
+
+Vagrant.configure("2") do |config|
+config.vm.define "websocketd" do |websocketd|
+  websocketd.vm.hostname = "websocketd"
+  websocketd.vm.box = "ubuntu/bionic64"
+  websocketd.vm.provision "shell", inline: $script
+  websocketd.vm.network "forwarded_port", guest: 80, host: 8101
+  websocketd.vm.network "forwarded_port", guest: 9001, host: 9001
+  websocketd.vm.synced_folder ".", "/var/www/html"
+  end
+config.vm.provider "virtualbox" do |v|
+  v.memory = 1024
+  v.cpus = 1
+  end
+end

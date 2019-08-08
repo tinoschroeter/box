@@ -6,7 +6,7 @@ apt-get update; apt-get install -y shellcheck curl apache2 sqlite
 cd /var/www/html # your html folder
 #wget https://raw.githubusercontent.com/tinoschroeter/bash_on_steroids/master/build.sh
 chmod +x build.sh
-rm index.html
+test -f index && rm index.html
 
 tee /etc/apache2/sites-enabled/000-default.conf >/dev/null <<EOF
 <VirtualHost *:80>
@@ -22,8 +22,8 @@ tee /etc/apache2/sites-enabled/000-default.conf >/dev/null <<EOF
           Options -Indexes
           Require all granted
 
-          RewriteEngine On
-          RewriteRule ^([a-zA-Z0-9.]+)$ index?url=$1 # 
+          #RewriteEngine On
+          #RewriteRule ^([a-zA-Z0-9.]+)$ index?url=$1 # 
 
         </Directory>
 	ErrorLog /var/log/apache2/error.log
@@ -32,8 +32,10 @@ tee /etc/apache2/sites-enabled/000-default.conf >/dev/null <<EOF
 </VirtualHost>
 EOF
 a2enmod cgid
-a2enmod rewrite
+#a2enmod rewrite
 service apache2 restart
+echo "########################"
+echo "# http://localhost:8100"
 SCRIPT
 
 Vagrant.configure("2") do |config|

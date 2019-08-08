@@ -1,0 +1,61 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+$script = <<SCRIPT
+apt-get update; apt-get install -y shellcheck curl apache2 
+
+tee /etc/apache2/sites-enabled/000-default.conf >/dev/null <<EOF
+<VirtualHost *:80>
+	ServerName example.org
+	ServerAdmin webmaster@example.org
+	DocumentRoot /var/www/html/
+ 
+        RedirectMatch 404 .*\.htsh
+        <Directory /var/www/html/>
+          AllowOverride none
+          Options -Indexes
+          Require all granted
+
+         AuthFormProvider file
+         AuthType form
+         AuthName "Reserved Area"
+         Session On
+         SessionCookieName session path=/
+         require valid-user
+
+      	# This is the login page
+        ErrorDocument 401 /login.html
+
+        # This is the file containing users login data
+        AuthUserFile /var/www/html/.htpasswd
+
+        </Directory>
+	ErrorLog /var/log/apache2/error.log
+	CustomLog /var/log/apache2/access.log combined
+	Include conf-available/serve-cgi-bin.conf
+</VirtualHost>
+EOF
+a2enmod cgid
+a2enmod auth_form
+a2enmod session
+a2enmod request
+a2enmod session_cookie
+
+service apache2 restart
+echo "########################"
+echo "# http://localhost:8101"
+SCRIPT
+
+Vagrant.configure("2") do |config|
+config.vm.define "form" do |form|
+  form.vm.hostname = "form"
+  form.vm.box = "ubuntu/bionic64"
+  form.vm.provision "shell", inline: $script
+  form.vm.network "forwarded_port", guest: 80, host: 8101
+  form.vm.synced_folder ".", "/var/www/html"
+  end
+config.vm.provider "virtualbox" do |v|
+  v.memory = 1024
+  v.cpus = 2
+  end
+end
