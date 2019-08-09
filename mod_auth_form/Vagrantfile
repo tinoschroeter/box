@@ -9,13 +9,29 @@ tee /etc/apache2/sites-enabled/000-default.conf >/dev/null <<EOF
 	ServerName example.org
 	ServerAdmin webmaster@example.org
 	DocumentRoot /var/www/html/
- 
+
         RedirectMatch 404 .*.htsh
 
         <Location /assets/>
           AllowOverride none
           Options -Indexes
           Require all granted
+        </Location>
+
+        <Location /cgi-bin/>
+          AuthFormProvider file
+          AuthType form
+          AuthName "Reserved Area"
+          Session On
+          SessionCookieName session path=/
+          SessionMaxAge 36000
+          require valid-user
+
+          # This is the login page
+          ErrorDocument 401 /login.html
+
+          # This is the file containing users login data
+          AuthUserFile /var/www/html/.htpasswd
         </Location>
 
         <Directory /var/www/html/>
@@ -30,23 +46,23 @@ tee /etc/apache2/sites-enabled/000-default.conf >/dev/null <<EOF
       	  # This is the login page
           ErrorDocument 401 /login.html
 
-
           # This is the file containing users login data
           AuthUserFile /var/www/html/.htpasswd
-
-          AuthName "example"
-          AuthFormLogoutLocation /logout.html
-          Session On
-          SessionCookieName session path=/
         </Directory>
 
         <Location "/logout">
           SetHandler form-logout-handler
-          AuthFormLogoutLocation "/"
+          AuthFormLogoutLocation "/assets/logout.html"
           Session on
           SessionCookieName session path=/
           SessionMaxAge 1
         </Location>
+
+        RewriteEngine On
+        RewriteRule /index /cgi-bin/index.cgi [NC,PT]
+        #RewriteRule /index.html /cgi-bin/index.cgi [NC,PT]  
+        RewriteRule /free /cgi-bin/free.cgi [NC,PT]
+
 
 	ErrorLog /var/log/apache2/error.log
 	CustomLog /var/log/apache2/access.log combined
@@ -58,6 +74,7 @@ a2enmod auth_form
 a2enmod session
 a2enmod request
 a2enmod session_cookie
+a2enmod rewrite
 
 service apache2 restart
 echo "########################"
