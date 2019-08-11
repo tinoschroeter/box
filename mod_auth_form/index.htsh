@@ -1,13 +1,11 @@
 <h1>Erfolgreich</h1>
-<a href="/foo.html">foo</a>
+<a href="/foo">foo</a>
 <br>
 <a href="/logout">logout</a>
 <br>
 <?bash
-for i in das ist ein test;do
-  echo $i
+IFS=$'\n'
+for i in $(env);do
+  echo "$i<br>"
 done
-echo
-env
-
 ?>

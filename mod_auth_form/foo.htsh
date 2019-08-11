@@ -1,0 +1,9 @@
+<h1>foo</h1>
+<a href="/index">zurueck</a>
+<br><br><br>
+<?bash
+IFS=$'\n'
+for i in $(env);do
+  echo "$i<br>"
+done
+?>

@@ -24,6 +24,7 @@ tee /etc/apache2/sites-enabled/000-default.conf >/dev/null <<EOF
           AuthName "Reserved Area"
           Session On
           SessionCookieName session path=/
+          SessionCryptoPassphrase secret
           SessionMaxAge 36000
           require valid-user
 
@@ -40,6 +41,7 @@ tee /etc/apache2/sites-enabled/000-default.conf >/dev/null <<EOF
           AuthName "Reserved Area"
           Session On
           SessionCookieName session path=/
+          SessionCryptoPassphrase secret
           SessionMaxAge 36000
           require valid-user
 
@@ -71,9 +73,10 @@ tee /etc/apache2/sites-enabled/000-default.conf >/dev/null <<EOF
 EOF
 a2enmod cgid
 a2enmod auth_form
-a2enmod session
 a2enmod request
+a2enmod session
 a2enmod session_cookie
+a2enmod session_crypto
 a2enmod rewrite
 
 service apache2 restart
