@@ -11,6 +11,8 @@ tee /etc/apache2/sites-enabled/000-default.conf >/dev/null <<EOF
 	DocumentRoot /var/www/html/
 
         RedirectMatch 404 .*.htsh
+        ErrorDocument 404 /404.html
+
 
         <Location /assets/>
           AllowOverride none
@@ -33,6 +35,8 @@ tee /etc/apache2/sites-enabled/000-default.conf >/dev/null <<EOF
 
           # This is the file containing users login data
           AuthUserFile /var/www/html/.htpasswd
+
+          ErrorDocument 401 "<html><meta http-equiv=\"refresh\" content=\"0;url=/login.htm\"></html>"
         </Location>
 
         <Directory /var/www/html/>
@@ -45,7 +49,7 @@ tee /etc/apache2/sites-enabled/000-default.conf >/dev/null <<EOF
           SessionMaxAge 36000
           require valid-user
 
-      	  # This is the login page
+          # This is the login page
           ErrorDocument 401 /login.html
 
           # This is the file containing users login data
@@ -54,7 +58,7 @@ tee /etc/apache2/sites-enabled/000-default.conf >/dev/null <<EOF
 
         <Location "/logout">
           SetHandler form-logout-handler
-          AuthFormLogoutLocation "/assets/logout.html"
+          AuthFormLogoutLocation "/logged-out"
           Session on
           SessionCookieName session path=/
           SessionMaxAge 1
@@ -62,8 +66,10 @@ tee /etc/apache2/sites-enabled/000-default.conf >/dev/null <<EOF
 
         RewriteEngine On
         RewriteRule /index /cgi-bin/index.cgi [NC,PT]
-        #RewriteRule /index.html /cgi-bin/index.cgi [NC,PT]  
-        RewriteRule /free /cgi-bin/free.cgi [NC,PT]
+        RewriteRule /index.html /cgi-bin/index.cgi [NC,PT]  
+        RewriteRule /foo /cgi-bin/foo.cgi [NC,PT]
+        RewriteRule /logged-out /assets/logout.html [NC,PT]
+
 
 
 	ErrorLog /var/log/apache2/error.log
