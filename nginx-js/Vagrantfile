@@ -1,0 +1,28 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+$script = <<SCRIPT
+apt-get update; apt-get install -y curl gnupg2 ca-certificates lsb-release 
+echo "deb http://nginx.org/packages/ubuntu `lsb_release -cs` nginx" \
+    | sudo tee /etc/apt/sources.list.d/nginx.list 
+curl -fsSL https://nginx.org/keys/nginx_signing.key | sudo apt-key add -
+apt-key fingerprint ABF5BD827BD9BF62 
+apt-get update 
+
+echo "[https://nginx.org/en/docs/njs/]"
+echo "[https://nginx.org/en/docs/njs/reference.html]"
+SCRIPT
+
+Vagrant.configure("2") do |config|
+config.vm.define "njs" do |njs|
+  njs.vm.hostname = "njs"
+  njs.vm.box = "ubuntu/bionic64"
+  njs.vm.provision "shell", inline: $script
+  njs.vm.network "forwarded_port", guest: 80, host: 8090
+  njs.vm.synced_folder ".", "/var/www/html"
+  end
+config.vm.provider "virtualbox" do |v|
+  v.memory = 1024
+  v.cpus = 2
+  end
+end

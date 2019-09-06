@@ -1,0 +1,34 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+$script = <<SCRIPT
+apt-get update; apt-get install -y shellcheck curl openjdk-11-jre-headless
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+apt-get install apt-transport-https
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+add-apt-repository "deb https://artifacts.elastic.co/packages/7.x/apt stable main"
+apt-get update
+apt-get install elasticsearch
+
+cat << 'EOF' > /etc/elasticsearch/elasticsearch.yml
+network.host: 0.0.0.0
+cluster.name: myCluster1
+node.name: "myNode1"
+EOF
+
+SCRIPT
+
+Vagrant.configure("2") do |config|
+config.vm.define "elasticsearch" do |elasticsearch|
+  elasticsearch.vm.hostname = "elasticsearch"
+  elasticsearch.vm.box = "ubuntu/bionic64"
+  elasticsearch.vm.provision "shell", inline: $script
+  elasticsearch.vm.network "forwarded_port", guest: 9200, host: 9200
+  elasticsearch.vm.network "forwarded_port", guest: 9300, host: 9300
+  elasticsearch.vm.synced_folder ".", "/var/www/html"
+  end
+config.vm.provider "virtualbox" do |v|
+  v.memory = 2048
+  v.cpus = 2
+  end
+end

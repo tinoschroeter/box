@@ -70,8 +70,6 @@ tee /etc/apache2/sites-enabled/000-default.conf >/dev/null <<EOF
         RewriteRule /foo /cgi-bin/foo.cgi [NC,PT]
         RewriteRule /logged-out /assets/logout.html [NC,PT]
 
-
-
 	ErrorLog /var/log/apache2/error.log
 	CustomLog /var/log/apache2/access.log combined
 	Include conf-available/serve-cgi-bin.conf
