@@ -2,12 +2,13 @@
 # vi: set ft=ruby :
 
 $script = <<SCRIPT
+export version="0.3.1"
 apt-get update; apt-get install -y shellcheck curl apache2 zip
 cd /var/www/html # your html folder
-wget https://github.com/joewalnes/websocketd/releases/download/v0.3.0/websocketd-0.3.0-linux_amd64.zip
-test -f websocketd-0.3.0-linux_amd64.zip || unzip websocketd-0.3.0-linux_amd64.zip
+wget https://github.com/joewalnes/websocketd/releases/download/v${version}/websocketd-${version}-linux_amd64.zip
+test -f websocketd-${version}-linux_amd64.zip || unzip websocketd-${version}-linux_amd64.zip
 #test -f index.html && rm index.html
-test -f websocketd-0.3.0-linux_amd64.zip \
+test -f websocketd-${version}-linux_amd64.zip \
 && rm CHANGES LICENSE README.md websocketd-0.3.0-linux_amd64.zip
 nohup /var/www/html/websocketd --devconsole --port=9091 /var/www/html/count.sh &
 tee /etc/apache2/sites-enabled/000-default.conf >/dev/null <<EOF
