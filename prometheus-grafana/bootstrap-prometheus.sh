@@ -92,3 +92,9 @@ sudo service grafana-server start
 
 # run on every boot
 sudo update-rc.d grafana-server defaults
+
+
+# fix dns problems 
+echo "#hosnames " >> /etc/hosts
+echo "10.0.20.2 node01" >> /etc/hosts 
+echo "10.0.20.3 node02" >> /etc/hosts
