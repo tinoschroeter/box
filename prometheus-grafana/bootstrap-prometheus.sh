@@ -70,7 +70,7 @@ scrape_configs:
   # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
   - job_name: 'node-prometheus'
     static_configs:
-      - targets: ['localhost:9100']
+      - targets: ['localhost:9100', 'node01:9100', 'node02:9100']
 EOF
 
 # start prometheus
