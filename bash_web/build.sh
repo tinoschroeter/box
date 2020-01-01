@@ -1,6 +1,6 @@
 #!/bin/bash
 # config
-set -euo pipefail
+#set -euo pipefail
 cgi_path="/usr/lib/cgi-bin/"
 
 bos() {
