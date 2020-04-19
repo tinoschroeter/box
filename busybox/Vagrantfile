@@ -1,0 +1,22 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+$script = <<SCRIPT
+#apk add busybox-extras
+echo "########################"
+SCRIPT
+
+Vagrant.configure("2") do |config|
+config.vm.define "busybox" do |busybox|
+  busybox.vm.hostname = "busybox"
+  busybox.vm.box = "buildroot/busybox"
+  busybox.vm.provider :virtualbox
+  busybox.vm.provision "shell", inline: $script
+  busybox.vm.network "forwarded_port", guest: 80, host: 9010
+  busybox.vm.synced_folder ".", "/var/www"
+  end
+config.vm.provider "virtualbox" do |v|
+  v.memory = 1024
+  v.cpus = 1
+  end
+end

@@ -12,6 +12,7 @@ config.vm.define "alpine" do |alpine|
   alpine.vm.box = "alpine/alpine64"
   alpine.vm.provision "shell", inline: $script
   alpine.vm.network "forwarded_port", guest: 80, host: 9090
+  alpine.vm.synced_folder ".", "/var/www"
   end
 config.vm.provider "virtualbox" do |v|
   v.memory = 1024

@@ -36,7 +36,7 @@ tee /etc/apache2/sites-enabled/000-default.conf >/dev/null <<EOF
           # This is the file containing users login data
           AuthUserFile /var/www/html/.htpasswd
 
-          ErrorDocument 401 "<html><meta http-equiv=\"refresh\" content=\"0;url=/login.htm\"></html>"
+          #ErrorDocument 401 "<html><meta http-equiv=\"refresh\" content=\"0;url=/login.htm\"></html>"
         </Location>
 
         <Directory /var/www/html/>
